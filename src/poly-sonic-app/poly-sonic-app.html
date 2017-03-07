@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../poly-sonic-api/poly-sonic-api.html">
 
 <dom-module id="poly-sonic-app">
   <template>
@@ -8,20 +9,19 @@
       }
     </style>
     <h2>Hello [[prop1]]</h2>
+    <poly-sonic-api>
+    </poly-sonic-api>
   </template>
 
   <script>
     customElements.define('poly-sonic-app', class extends Polymer.Element {
       static get is() { return 'poly-sonic-app'; }
-
-      static get config() {
+      static get properties() {
         return {
-          properties: {
             prop1: {
               type: String,
               value: 'poly-sonic-app'
             }
-          }
         };
       }
     });

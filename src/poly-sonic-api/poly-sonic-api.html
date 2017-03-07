@@ -1,3 +1,6 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<script src="../../bower_components/abdmob/x2js/xml2json.js"></script>
+
 <dom-module id="poly-sonic-api">
   <template>
     <style>
@@ -5,22 +8,84 @@
         display: block;
       }
     </style>
-    <h2>Hello [[prop1]]</h2>
+    <h2>Hello [[_apiData]]</h2>
+    <iron-ajax
+      auto
+      url="https://82.72.252.24:4443/rest/ping.view"
+      params="{{_queryParameters}}"
+      handle-as="text"
+      last-response="{{_apiDataXMLString}}"
+      debounce-duration="300"></iron-ajax>
   </template>
 
   <script>
     customElements.define('poly-sonic-api', class extends Polymer.Element {
       static get is() { return 'poly-sonic-api'; }
-
-      static get config() {
+      static get properties() {
         return {
-          properties: {
-            prop1: {
+            user: {
               type: String,
-              value: 'poly-sonic-api'
+              value: 'olivier'
+            },
+            password: {
+              type: String,
+              value: 'mkomkomko'
+            },
+            token: {
+              type: String,
+              value: function() {
+                return '83b48e7d172bb8fe5df2ce9fdae19516'
+              }
+            },
+            salt: {
+              type: String,
+              value: 'c19b2d'
+            },
+            version: {
+              type: String,
+              value: '1.14.0'
+            },
+            clientApplication: {
+              type: String,
+              value: 'poly-sonic'
+            },
+            _queryParameters: {
+              type: Object
+            },
+            _apiDataXMLString: {
+              type: String
+            },
+            _apiDataObject: {
+              type: Object
             }
-          }
         };
+      }
+      static get observers() {
+        return [
+            '_computeQueryParameters(user, token, salt, version, clientApplication)',
+            '_parseApiDataXMLtoJSON(_apiDataXMLString)',
+            '_handleParsedApiData(_apiDataObject)'
+        ];
+      }
+      _computeQueryParameters(user, token, salt, version, clientApplication) {
+        this._queryParameters = {
+          u: user,
+          t: token,
+          s: salt,
+          v: version,
+          c: clientApplication,
+        };
+      }
+      _handleParsedApiData(_apiDataObject) {
+        console.log(_apiDataObject);
+      }
+      _parseApiDataXMLtoJSON(_apiDataXMLString) {
+        var x2js = new X2JS(
+          {
+            attributePrefix: ''
+          }
+        );
+        this.set('_apiDataObject', x2js.xml_str2json(_apiDataXMLString));
       }
     });
   </script>
