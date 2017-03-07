@@ -1,0 +1,27 @@
+<dom-module id="poly-sonic-api">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]</h2>
+  </template>
+
+  <script>
+    customElements.define('poly-sonic-api', class extends Polymer.Element {
+      static get is() { return 'poly-sonic-api'; }
+
+      static get config() {
+        return {
+          properties: {
+            prop1: {
+              type: String,
+              value: 'poly-sonic-api'
+            }
+          }
+        };
+      }
+    });
+  </script>
+</dom-module>
