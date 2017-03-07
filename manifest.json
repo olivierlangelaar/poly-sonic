@@ -1,0 +1,7 @@
+{
+  "name": "poly-sonic",
+  "short_name": "poly-sonic",
+  "description": "Polymer material elements based subsonic client",
+  "start_url": "/",
+  "display": "standalone"
+}
