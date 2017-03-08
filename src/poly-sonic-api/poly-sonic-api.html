@@ -1,5 +1,5 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<script src="../../bower_components/abdmob/x2js/xml2json.js"></script>
+<script src="../../bower_components/js-md5/src/md5.js" charset="utf-8"></script>
 
 <dom-module id="poly-sonic-api">
   <template>
@@ -8,14 +8,20 @@
         display: block;
       }
     </style>
-    <h2>Hello [[_apiData]]</h2>
+    <h2>route [[route]]</h2>
+    <h2>user [[user]]</h2>
+    <h2>token [[token]]</h2>
+    <h2>salt [[salt]]</h2>
+    <h2>_url [[_url]]</h2>
     <iron-ajax
       auto
-      url="https://82.72.252.24:4443/rest/ping.view"
+      url="[[_url]]"
       params="{{_queryParameters}}"
-      handle-as="text"
-      last-response="{{_apiDataXMLString}}"
+      handle-as="json"
+      last-response="{{_apiDataObject}}"
       debounce-duration="300"></iron-ajax>
+
+    <input type="text" name="route" value="{{route::change}}">
   </template>
 
   <script>
@@ -23,49 +29,68 @@
       static get is() { return 'poly-sonic-api'; }
       static get properties() {
         return {
-            user: {
-              type: String,
-              value: 'olivier'
-            },
-            password: {
-              type: String,
-              value: 'mkomkomko'
-            },
-            token: {
-              type: String,
-              value: function() {
-                return '83b48e7d172bb8fe5df2ce9fdae19516'
-              }
-            },
-            salt: {
-              type: String,
-              value: 'c19b2d'
-            },
-            version: {
-              type: String,
-              value: '1.14.0'
-            },
-            clientApplication: {
-              type: String,
-              value: 'poly-sonic'
-            },
-            _queryParameters: {
-              type: Object
-            },
-            _apiDataXMLString: {
-              type: String
-            },
-            _apiDataObject: {
-              type: Object
+          route: {
+            type: String,
+            value: 'getLicense'
+          },
+          user: {
+            type: String,
+            value: 'olivier'
+          },
+          token: {
+            type: String,
+          },
+          salt: {
+            type: String,
+            value: function() {
+              return Math.random().toString(36).substring(10);
             }
+          },
+          password: {
+            type: String,
+            value: 'mkomkomko'
+          },
+          version: {
+            type: String,
+            value: '1.14.0'
+          },
+          clientApplication: {
+            type: String,
+            value: 'poly-sonic'
+          },
+          requestDataFormat: {
+            type: String,
+            value: 'json'
+          },
+          response: {
+            type: Object
+          },
+          _queryParameters: {
+            type: Object
+          },
+          _apiDataObject: {
+            type: Object
+          },
+          _apiBaseURL: {
+            type: String,
+            value: 'https://82.72.252.24:4443/rest/'
+          },
+          _url: {
+            type: String
+          },
         };
       }
       static get observers() {
         return [
+            '_computeURL(route, _apiBaseURL)',
             '_computeQueryParameters(user, token, salt, version, clientApplication)',
-            '_parseApiDataXMLtoJSON(_apiDataXMLString)',
-            '_handleParsedApiData(_apiDataObject)'
+            '_handleApiData(_apiDataObject)',
+            '_generateTokenFromPasswordAndSalt(password, salt)'
+
         ];
+      }
+      _computeURL(route, _apiBaseURL) {
+        this._url = _apiBaseURL + route + '.view';
       }
       _computeQueryParameters(user, token, salt, version, clientApplication) {
         this._queryParameters = {
@@ -74,18 +99,15 @@
           s: salt,
           v: version,
           c: clientApplication,
+          f: 'json'
         };
       }
-      _handleParsedApiData(_apiDataObject) {
-        console.log(_apiDataObject);
+      _generateTokenFromPasswordAndSalt(password, salt) {
+        this.token = md5(password + salt)
       }
-      _parseApiDataXMLtoJSON(_apiDataXMLString) {
-        var x2js = new X2JS(
-          {
-            attributePrefix: ''
-          }
-        );
-        this.set('_apiDataObject', x2js.xml_str2json(_apiDataXMLString));
+      _handleApiData(_apiDataObject) {
+        this.response = _apiDataObject;
+        console.log(_apiDataObject['subsonic-response']);
       }
     });
   </script>
